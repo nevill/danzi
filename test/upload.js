@@ -73,6 +73,48 @@ describe('post request test', function() {
   });
 });
 
+describe('customize nameGenerator', function() {
+  var app = express();
+  var timestamp = Date.now().toString();
+
+  app
+    .use(express.bodyParser())
+    .use(danzi({
+      path: uploadPath,
+      nameGenerator: function(file) {
+        var ab = timestamp.substr(-2);
+        var cd = timestamp.substr(-4, 2);
+        var extname = path.extname(file.name);
+        return path.join(ab, cd, timestamp + extname);
+      }
+    }));
+
+  app.post('/', function(req, res, next) {
+    if (req.files && req.files.hasOwnProperty('file')) {
+      res.json({uri: req.files.file.uri, name: req.files.file.name });
+    }
+    next(new Error('Must have a uploaded file'));
+  });
+
+  it('should return with customized names', function(done) {
+    request(app)
+      .post('/')
+      .attach('file', __dirname + '/fixture/danzi.jpg')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function(err, res) {
+        fs.exists(path.join(uploadPath, timestamp.substr(-2)), function(exists) {
+          assert.equal(exists, true);
+
+          fs.exists(res.body.uri, function(exists) {
+            assert.equal(exists, true);
+            done();
+          });
+        });
+      });
+  });
+});
+
 describe('multi version test', function() {
 
   describe('without nameGenerator', function() {
@@ -142,10 +184,8 @@ describe('multi version test', function() {
 });
 
 after(function(done) {
-  var files = fs.readdirSync(uploadPath);
-  for(var key in files) {
-    fs.unlinkSync(uploadPath + '/' + files[key]);
-  }
-  fs.rmdirSync(uploadPath);
-  done();
+  var exec = require('child_process').exec;
+  var filePath = path.join(uploadPath, '*');
+
+  exec('rm -rf ' + filePath, done);
 });
