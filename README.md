@@ -1,3 +1,5 @@
+[![wercker status](https://app.wercker.com/status/91e9245190f0600ff61e38963f168aee/m "wercker status")](https://app.wercker.com/project/bykey/91e9245190f0600ff61e38963f168aee)
+
 # DanZi
 
   A uploader middleware for express application.
