@@ -23,8 +23,9 @@
     "url": "https://github.com/nevill/danzi/issues"
   },
   "devDependencies": {
-    "mocha": "~1.12.0",
     "express": "~3.3.5",
+    "mocha": "~1.12.0",
+    "nock": "^0.42.1",
     "supertest": "~0.7.1"
   },
   "dependencies": {
